@@ -237,7 +237,7 @@ puts "Seeding blogs..."
 if doctors.any?
   starting_order = 1
 
-  5.times do |index|
+  10.times do |index|
     blog = Blog.create!(
       title: Faker::Lorem.sentence(word_count: 6),
       content: Faker::Lorem.paragraph(sentence_count: 15),
