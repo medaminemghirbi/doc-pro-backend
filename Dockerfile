@@ -1,87 +1,92 @@
 # syntax = docker/dockerfile:1
 
-# Make sure RUBY_VERSION matches the Ruby version in .ruby-version and Gemfile
+# Use a Ruby base image
 ARG RUBY_VERSION=3.2.2
 FROM ruby:$RUBY_VERSION-slim AS base
 
 LABEL fly_launch_runtime="rails"
 
-# Rails app lives here
+# Set app working directory
 WORKDIR /rails
 
-# Set production environment
+# Set environment variables
 ENV BUNDLE_DEPLOYMENT="1" \
     BUNDLE_PATH="/usr/local/bundle" \
     BUNDLE_WITHOUT="development:test" \
     RAILS_ENV="production"
 
-# Update gems and bundler
+# Update gem system and install bundler
 RUN gem update --system --no-document && \
     gem install -N bundler
 
 
-# Throw-away build stage to reduce size of final image
+# -----------------------
+# Build Stage
+# -----------------------
 FROM base AS build
 
-# Install packages needed to build gems and node modules
+# Install system dependencies for building gems and JS
 RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y build-essential curl libpq-dev node-gyp pkg-config python-is-python3
+    apt-get install --no-install-recommends -y \
+    build-essential curl libpq-dev node-gyp pkg-config python-is-python3 git
 
-# Install Node.js
+# Install Node.js manually
 ARG NODE_VERSION=20.14.0
 ENV PATH=/usr/local/node/bin:$PATH
 RUN curl -sL https://github.com/nodenv/node-build/archive/master.tar.gz | tar xz -C /tmp/ && \
     /tmp/node-build-master/bin/node-build "${NODE_VERSION}" /usr/local/node && \
     rm -rf /tmp/node-build-master
 
-# Install application gems
+# Copy Gemfiles and install gems
 COPY Gemfile Gemfile.lock ./
 RUN bundle install && \
     bundle exec bootsnap precompile --gemfile && \
     rm -rf ~/.bundle/ "${BUNDLE_PATH}"/ruby/*/cache "${BUNDLE_PATH}"/ruby/*/bundler/gems/*/.git
 
-# Install node modules
+# Install JS dependencies
 COPY package.json package-lock.json ./
 RUN npm install
 
-# Copy application code
+# Copy app source code
 COPY . .
 
-# Precompile bootsnap code for faster boot times
-RUN bundle exec bootsnap precompile app/ lib/
-
-# Adjust binfiles to be executable on Linux
-RUN sed -i 's/ruby2\.7$/ruby/' bin/*
+# Precompile app code for production
+RUN bundle exec bootsnap precompile app/ lib/ && \
+    RAILS_ENV=production bundle exec rake assets:precompile
 
 
-# Final stage for app image
+# -----------------------
+# Final Stage
+# -----------------------
 FROM base
 
-# Install packages needed for deployment
+# Install minimal runtime dependencies
 RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y curl imagemagick postgresql-client && \
-    rm -rf /var/lib/apt/lists /var/cache/apt/archives
+    apt-get install --no-install-recommends -y \
+    curl imagemagick postgresql-client && \
+    rm -rf /var/lib/apt/lists/* /var/cache/apt/archives
 
-# Copy built artifacts: gems, application
+# Copy everything from the build stage
 COPY --from=build "${BUNDLE_PATH}" "${BUNDLE_PATH}"
 COPY --from=build /rails /rails
 
-# Run and own only the runtime files as a non-root user for security
+# Create needed dirs and a non-root user
 RUN mkdir -p db log tmp && \
     groupadd --system --gid 1000 rails && \
     useradd rails --uid 1000 --gid 1000 --create-home --shell /bin/bash && \
-    chown -R 1000:1000 db log tmp
+    chown -R rails:rails /rails
 
-# Deployment options
+# Use the non-root user for security
+USER rails
+
+# Set production env vars
 ENV RAILS_LOG_TO_STDOUT="1" \
-    RAILS_SERVE_STATIC_FILES="true"
+    RAILS_SERVE_STATIC_FILES="true" \
+    SECRET_KEY_BASE="69c7d7389bbb003e21265b47e0a66d950c4018fee485abcb1355bfddd59a8fdb0d5573a94357c25be6eefe584c591ae067085169b36dfdea811422036d7bf35d"
 
-# Entrypoint sets up the container.
-ENTRYPOINT ["/rails/bin/docker-entrypoint"]
+# Entrypoint for setup tasks
+ENTRYPOINT ["bin/docker-entrypoint"]
 
-# Start the server by default, this can be overwritten at runtime
+# Run Rails server by default
 EXPOSE 3000
-CMD ["./bin/rails", "server"]
-
-ENV RAILS_ENV=production
-ENV SECRET_KEY_BASE=69c7d7389bbb003e21265b47e0a66d950c4018fee485abcb1355bfddd59a8fdb0d5573a94357c25be6eefe584c591ae067085169b36dfdea811422036d7bf35d
+CMD ["bin/rails", "server", "-b", "0.0.0.0"]
