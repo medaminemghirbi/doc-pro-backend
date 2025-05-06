@@ -88,7 +88,7 @@ end
 puts "Seeding 50 patients..."
 starting_order = 1
 
-50.times do |index|
+2.times do |index|
   phone_number = Faker::PhoneNumber.phone_number.gsub(/\D/, "").slice(0, 8)
 
   patient = Patient.create!(

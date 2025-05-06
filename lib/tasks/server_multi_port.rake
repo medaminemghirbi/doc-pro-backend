@@ -25,12 +25,12 @@ namespace :server do
 
     fork do
       puts "Starting Rails server on localhost:3000..."
-      exec "rails server -b 127.0.0.1 -p 3000 --pid #{pid_path_3000}"
+      exec "RAILS_ENV=development rails server -b 127.0.0.1 -p 3000 --pid #{pid_path_3000}"
     end
 
     fork do
       puts "Starting Rails server on #{client_ip}:3001..."
-      exec "rails server -b #{client_ip} -p 3001 --pid #{pid_path_3001}"
+      exec "RAILS_ENV=development rails server -b #{client_ip} -p 3001 --pid #{pid_path_3001}"
     end
 
     Thread.new do

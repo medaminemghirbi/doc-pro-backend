@@ -15,7 +15,3 @@ development:
 test:
   <<: *default
   database: derma_database_test
-
-production:
-  <<: *default
-  database: derma_database_production
