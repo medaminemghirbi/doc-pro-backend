@@ -40,8 +40,6 @@
 # Ignore master key for decrypting credentials and more.
 /config/master.key
 
-database.yml
-
 # Ignore the val folder in deep_learning
 app/deep_learning/val/
 
