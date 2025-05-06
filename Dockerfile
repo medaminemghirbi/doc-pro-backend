@@ -50,9 +50,8 @@ RUN npm install
 # Copy app source code
 COPY . .
 
-# Precompile app code for production
-RUN bundle exec bootsnap precompile app/ lib/ && \
-    RAILS_ENV=production bundle exec rake assets:precompile
+# Precompile app code for production (no assets needed for API mode)
+RUN bundle exec bootsnap precompile app/ lib/
 
 
 # -----------------------
