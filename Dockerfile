@@ -49,7 +49,7 @@ RUN npm install
 
 # Copy app source code
 COPY . .
-
+COPY config/database.yml config/database.yml
 # Precompile app code for production (no assets needed for API mode)
 RUN bundle exec bootsnap precompile app/ lib/
 
