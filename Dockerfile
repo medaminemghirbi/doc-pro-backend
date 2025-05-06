@@ -83,3 +83,5 @@ ENTRYPOINT ["/rails/bin/docker-entrypoint"]
 EXPOSE 3000
 CMD ["./bin/rails", "server"]
 
+ENV RAILS_ENV=production
+ENV SECRET_KEY_BASE=69c7d7389bbb003e21265b47e0a66d950c4018fee485abcb1355bfddd59a8fdb0d5573a94357c25be6eefe584c591ae067085169b36dfdea811422036d7bf35d
