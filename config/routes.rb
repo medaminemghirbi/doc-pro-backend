@@ -156,6 +156,7 @@ Rails.application.routes.draw do
       resources :messages
       resources :users
       patch "update_settings", to: "users#update_settings"
+      resources :maladies
 
     end
   end

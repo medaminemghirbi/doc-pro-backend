@@ -1,6 +1,6 @@
 class Consultation < ApplicationRecord
   ## Scopes
-  enum status: {pending: 0, approved: 1, rejected: 2, canceled: 3, finished: 4}
+  enum status: {pending: 0, approved: 1, rejected: 2}
   enum appointment_type: {onsite: 0, online: 1}
 
   scope :current, -> { where(is_archived: false) }

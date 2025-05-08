@@ -17,6 +17,12 @@ class Maladie < ApplicationRecord
     image.attached? ? url_for(image) : nil
   end
 
-  private
+  def diseas_image_url_mobile
+    return nil unless image.attached?
+    image_url = Rails.application.routes.url_helpers.rails_blob_url(image, only_path: false)
+    host = AppConfig.find_by(key: "mobile")&.value || "localhost:3000"
+    image_url.gsub("localhost:3000", host)
+  end
+
 
 end
