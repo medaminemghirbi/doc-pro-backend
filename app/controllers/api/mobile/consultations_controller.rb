@@ -82,11 +82,16 @@ def add_new_demande
     return
   end
 
-  # Save the consultation
-  if @consultation.save
-    render json: { status: 200, message: "Consultation created successfully.", consultation: @consultation }
-  else  
-    render json: { status: 422, error: @consultation.errors.full_messages.join(", ") }, status: :unprocessable_entity
+  begin
+    # Save the consultation
+    if @consultation.save
+      render json: { status: 200, message: "Consultation created successfully.", consultation: @consultation }
+    else  
+      render json: { status: 422, error: @consultation.errors.full_messages.join(", ") }, status: :unprocessable_entity
+    end
+  rescue ActiveRecord::RecordNotUnique => e
+    # Handle the duplicate record error
+    render json: { status: 409, error: "A consultation with this doctor on the same date already exists." }, status: :conflict
   end
 end
 

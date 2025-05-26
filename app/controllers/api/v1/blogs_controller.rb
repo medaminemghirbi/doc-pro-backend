@@ -80,6 +80,14 @@ class Api::V1::BlogsController < ApplicationController
     end
   end
 
+  def all_all_verification
+    if Blog.update_all(is_verified: true)
+      render json: { message: "All blogs have been verified." }, status: :ok
+    else
+      render json: { error: "Failed to verify all blogs." }, status: :unprocessable_entity
+    end
+  end
+  
   private
 
   def set_blog
