@@ -39,12 +39,20 @@ end
 csv_file_path = Rails.root.join("app", "services", "dermatologue_doctors.csv")
 puts "Seeding 10 doctors from CSV file..."
 starting_order = 1
+def random_sousse_coordinates
+  latitude = rand(35.810..35.850).round(6)
+  longitude = rand(10.580..10.650).round(6)
+  [latitude, longitude]
+end
 
 CSV.foreach(csv_file_path, headers: true).first(5).each_with_index do |row, index|
+  lat, long = random_sousse_coordinates
   doctor = Doctor.create!(
     firstname: row["name"].split.first,
     lastname: row["name"].split[1..].join(" "),
-    location: row["location"],
+    location: ["sousse"].sample,
+    latitude: lat,
+    longitude: long,
     email: Faker::Internet.unique.email,
     order: starting_order + index,
     password: "123456",

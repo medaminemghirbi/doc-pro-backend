@@ -199,7 +199,7 @@ class Api::V1::UsersController < ApplicationController
       }, status: :unprocessable_entity
     end
   end
-  def update_uesr_informations
+  def update_user_informations
     @user = User.find(params[:id])
     if @user.update(params_informations_user)
       render json: @user, methods: [:user_image_url]

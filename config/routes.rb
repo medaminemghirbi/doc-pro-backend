@@ -48,7 +48,7 @@ Rails.application.routes.draw do
         post "activate_compte", on: :member
       end
       resources :patients
-      resources :consultations, only: [:show, :create, :destroy, :updata] do
+      resources :consultations, only: [:show, :create, :destroy, :update] do
         resource :consultation_report, only: [:create, :show] # To create and view the report
         get 'report/download', to: 'consultation_reports#download', as: 'download_report'
       end
@@ -94,6 +94,7 @@ Rails.application.routes.draw do
       get "available_time_slots/:date/:doctor_id", to: "consultations#available_time_slots"
       get "verified_blogs", to: "blogs#verified_blogs"
       get "my_blogs/:doctor_id", to: "blogs#my_blogs"
+      patch "all_all_verification", to: "blogs#all_all_verification"
       get "statistique", to: "users#count_all_for_admin"
       get "top_consultation_gouvernement", to: "users#top_consultation_gouvernement"
       get "gender_stats", to: "users#gender_stats"
@@ -108,8 +109,9 @@ Rails.application.routes.draw do
       patch "updatedoctorimage/:id", to: "doctors#updatedoctorimage"
       patch "updatedoctor/:id", to: "doctors#updatedoctor"
       patch "updatepassword/:id", to: "doctors#updatepassword"
-      patch "update_uesr_informations/:id", to: "users#update_uesr_informations"
       patch "update_password_user/:id", to: "users#update_password_user"
+      patch "update_user_informations/:id", to: "users#update_user_informations"
+
       get "download_file/:id", to: "documents#download"
       delete "delete_all_documents/:id", to: "documents#delete_all_documents"
       post "update_address", to: "locations#update_address"
@@ -157,7 +159,9 @@ Rails.application.routes.draw do
       resources :users
       patch "update_settings", to: "users#update_settings"
       resources :maladies
-
+      post "predict/:patient_id/", to: "predictions#predict"
+      get 'verify', to: 'auth#verify'
+      put "changeLanguage", to: "users#changeLanguage"
     end
   end
   # resources :users

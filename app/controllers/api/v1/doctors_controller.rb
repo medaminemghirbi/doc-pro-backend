@@ -88,7 +88,7 @@ class Api::V1::DoctorsController < ApplicationController
   def nearest
     location = params[:location]
     radius = params[:radius] || 20
-
+    byebug
     coordinates = Geocoder.coordinates(location)
 
     if coordinates.nil?

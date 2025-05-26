@@ -41,7 +41,7 @@ class Api::V1::ConsultationsController < ApplicationController
     if valid_status?(consultation_params[:status])
       if @consultation.update(consultation_params)
         handle_notifications(@consultation.patient_id, @consultation.doctor_id, @consultation)
-        handle_sms(@consultation.patient_id, @consultation.doctor_id, @consultation)
+        #handle_sms(@consultation.patient_id, @consultation.doctor_id, @consultation)
         render json: @consultation
       else
         render json: @consultation.errors, status: :unprocessable_entity

@@ -173,7 +173,8 @@ ActiveRecord::Schema[7.0].define(version: 2025_04_11_140801) do
   end
 
   create_table "predictions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "doctor_id", null: false
+    t.uuid "doctor_id"
+    t.uuid "patient_id"
     t.string "predicted_class"
     t.string "probability"
     t.integer "download_count", default: 0
