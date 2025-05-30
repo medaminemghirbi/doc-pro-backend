@@ -7,7 +7,11 @@ class Api::Mobile::UsersController < ApplicationController
           render json: @user.errors, statut: :unprocessable_entity
         end
     end
-
+    def save_token
+      user = User.find(params[:user_id])
+      user.update!(expo_push_token: params[:expo_push_token])
+      render json: { success: true }
+    end
     private
     def params_image_user
       params.permit(:id, :avatar)

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_04_11_140801) do
+ActiveRecord::Schema[7.0].define(version: 2025_05_29_100342) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -251,6 +251,7 @@ ActiveRecord::Schema[7.0].define(version: 2025_04_11_140801) do
     t.datetime "confirmation_code_generated_at"
     t.string "about_me"
     t.string "jti", default: "", null: false
+    t.string "expo_push_token"
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["jti"], name: "index_users_on_jti", unique: true

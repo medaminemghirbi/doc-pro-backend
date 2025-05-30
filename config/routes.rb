@@ -1,7 +1,7 @@
 require "sidekiq/web"
 # require 'sidekiq-scheduler/web'
 Rails.application.routes.draw do
-  devise_for :users, path: "api", path_names: {registration: "sign_up", sessions: "sign_in"}, controllers: {
+  devise_for :users, path: "api", path_names: {registration: "sign_up", sessions: "sign_in", sign_out: "sign_out"}, controllers: {
     sessions: "users/sessions",
     registrations: "users/registrations",
     passwords: "users/passwords",
@@ -160,8 +160,14 @@ Rails.application.routes.draw do
       patch "update_settings", to: "users#update_settings"
       resources :maladies
       post "predict/:patient_id/", to: "predictions#predict"
+      post "predict_mobile", to: "predictions#predict"
+
       get 'verify', to: 'auth#verify'
       put "changeLanguage", to: "users#changeLanguage"
+      get "doctor_consultations_today/:doctor_id", to: "consultations#doctor_consultations_today"
+      get "doctor_appointments/:doctor_id", to: "consultations#doctor_appointments"
+      post 'save_expo_token', to: 'users#save_token'
+      resources :consultations, only: [:update]
     end
   end
   # resources :users

@@ -4,7 +4,8 @@ class Api::Mobile::PredictionsController < ApplicationController
   def predict
     # Assuming the image is uploaded as part of the request
     image = params[:file]
-    patient = Patient.find(params[:patient_id])
+    patient = Patient.find(params[:patient_id]) if params[:patient_id]
+    doctor = Doctor.find(params[:doctor_id]) if params[:doctor_id]
 
     # Save the uploaded file to a temporary location
     sanitized_filename = image.original_filename.gsub(/\s+/, "_")
@@ -43,12 +44,23 @@ class Api::Mobile::PredictionsController < ApplicationController
     File.delete(image_path)
 
     # Save the PDF report to the database
-    prediction = Prediction.new(
-      patient: patient,
-      predicted_class: predicted_class,
-      probability: probability,
-      maladie: maladie
-    )
+    if patient
+      prediction = Prediction.new(
+        patient: patient,
+        predicted_class: predicted_class,
+        probability: probability,
+        maladie: maladie
+      )
+    end
+    if doctor
+      prediction = Prediction.new(
+        doctor: doctor,
+        predicted_class: predicted_class,
+        probability: probability,
+        maladie: maladie
+      )
+    end
+
 
 
     if prediction.save

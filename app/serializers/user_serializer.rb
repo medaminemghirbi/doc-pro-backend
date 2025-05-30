@@ -6,7 +6,7 @@ class UserSerializer < ActiveModel::Serializer
              :plan, :custom_limit, :radius, :is_emailable, :is_notifiable, 
              :is_smsable, :working_saturday, :working_on_line, :amount, 
              :created_at, :updated_at, :language, :confirmation_code, 
-             :confirmed_at,
+             :confirmed_at,  :type,
              :confirmation_code_generated_at, :about_me, :jti, :user_image_url, :user_image_url_mobile
 
   def user_image_url
@@ -15,5 +15,8 @@ class UserSerializer < ActiveModel::Serializer
 
   def user_image_url_mobile
     object.user_image_url_mobile
+  end
+  def type
+    object.type # This ensures "Patient", "Doctor", etc.
   end
 end

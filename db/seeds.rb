@@ -348,3 +348,21 @@ puts "Seeding services done"
 puts "Seeding Done ✅"
 
 # puts "Seeding done."
+
+
+
+##TO USE IN PFE
+# ## Find doctor and patient by email (single records)
+# doctor = Doctor.find_by(email: "doctor@gmail.com")
+# patient = Patient.third
+
+# # Define the appointment datetime: May 26, 2025 at 10:00 AM (adjust year if needed)
+# appointment_time = Time.zone.parse("2025-05-26 11:30")
+
+# # Create the consultation
+# consultation = Consultation.create!(
+#   appointment: appointment_time,
+#   status: "approved",   # or :approved if it's a symbol enum
+#   doctor: doctor,
+#   patient: patient
+# )

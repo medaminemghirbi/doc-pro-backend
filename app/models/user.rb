@@ -3,8 +3,7 @@ class User < ApplicationRecord
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
   devise :database_authenticatable, :registerable,
-         :recoverable, :rememberable, :validatable, :confirmable,
-         :jwt_authenticatable, jwt_revocation_strategy: Devise::JWT::RevocationStrategies::JTIMatcher
+         :recoverable, :rememberable, :validatable, :confirmable
   self.table_name = "users"
   enum gender: [:male, :female]
   enum plateform: [:web, :mobile]
@@ -16,11 +15,9 @@ class User < ApplicationRecord
 
   # #Includes
   include Rails.application.routes.url_helpers
-  include Devise::JWT::RevocationStrategies::JTIMatcher
   ## Callbacks
   before_save :generate_code_doc
   before_create :attach_avatar_based_on_gender
-  before_create :set_jti
   ## Validations
   validates :email, uniqueness: true
 
@@ -64,10 +61,6 @@ class User < ApplicationRecord
   end
 
   private
-
-  def set_jti
-    self.jti ||= SecureRandom.uuid
-  end
 
   def attach_avatar_based_on_gender
     if male?

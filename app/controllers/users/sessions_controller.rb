@@ -1,35 +1,45 @@
 # frozen_string_literal: true
+
 class Users::SessionsController < Devise::SessionsController
   respond_to :json
 
-  # Overriding the respond_with method to return JSON instead of using flash
   private
 
   def respond_with(resource, _opts = {})
     if resource.persisted?
       token = JsonWebToken.encode(user_id: resource.id)
-      time = Time.now + 24.hours.to_i
-      Rails.cache.write("blacklist/#{token}", true, expires_in: time.to_i - Time.now.to_i)
+      exp_time = 24.hours.from_now
+
+      # Optional blacklist on login if you want future logout control
+      Rails.cache.write("blacklist/#{token}", true, expires_in: exp_time - Time.current)
 
       render json: {
         logged_in: true,
         user: UserSerializer.new(resource),
         type: resource.type,
         token: token,
-        exp: time.strftime("%m-%d-%Y %H:%M")
-      }
+        exp: exp_time.strftime("%m-%d-%Y %H:%M")
+      }, status: :ok
     else
-      render json: { status:401 ,message: 'Login failed', errors: resource.errors.full_messages }, status: :unprocessable_entity
+      render json: { logged_in: false, message: 'Login failed', errors: resource.errors.full_messages }, status: :unauthorized
     end
   end
 
-
   def respond_to_on_destroy
-    if current_user
-      # Add token invalidation logic here if needed
+    token = request.headers['Authorization']&.split(' ')&.last
+
+    if token.blank?
+      render json: { message: 'Token missing.' }, status: :unauthorized
+      return
+    end
+
+    begin
+      JsonWebToken.decode(token)
+      Rails.cache.delete("blacklist/#{token}") if Rails.cache.exist?("blacklist/#{token}")
       render json: { message: 'Logged out successfully.' }, status: :ok
-    else
-      render json: { message: 'No active session found.' }, status: :unauthorized
+
+    rescue JWT::DecodeError, JWT::VerificationError, JWT::ExpiredSignature
+      render json: { message: 'Logged out (invalid or expired token).' }, status: :ok
     end
   end
 end

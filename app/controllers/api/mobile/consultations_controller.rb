@@ -1,7 +1,11 @@
 
+require 'net/http'
+require 'uri'
+require 'json'
+
 class Api::Mobile::ConsultationsController < ApplicationController
   before_action :authorize_request
-  before_action :set_consultation, only: [:destroy]
+  before_action :set_consultation, only: [:destroy, :update]
   def patient_consultations_today
     today = Date.current
 
@@ -52,7 +56,23 @@ class Api::Mobile::ConsultationsController < ApplicationController
       render json: { error: "You can't delete this consultation." }, status: :unprocessable_entity
     end
   end
+
+
+
   
+  def update
+    @patient = User.find(@consultation.patient_id)
+
+      if @consultation.update(consultation_params_update)
+        #handle_sms(@consultation.patient_id, @consultation.doctor_id, @consultation)
+        render json: @consultation
+      else
+        render json: @consultation.errors, status: :unprocessable_entity
+      end
+  rescue => e
+    Rails.logger.error("Failed to update consultation: #{e.message}")
+    render json: {error: e.message}, status: :internal_server_error
+  end
 
 ##CREATE CONSULTATION BY Mobile 
 def add_new_demande
@@ -95,6 +115,35 @@ def add_new_demande
   end
 end
 
+  # GET /consultations/doctor_consultations_today
+  def doctor_consultations_today
+    today = Date.current
+
+    @consultations = Consultation.where(
+      doctor_id: params[:doctor_id],
+      appointment: today.beginning_of_day..today.end_of_day,
+      status: 1
+    ).sort_by(&:appointment)
+
+    render json: @consultations.as_json(include: {
+      patient: {methods: [:user_image_url]}
+    }).map do |consultation|
+      consultation.merge(
+        appointment: consultation["appointment"].strftime("%Y-%m-%d %H:%M:%S")
+      )
+    end
+  end
+  # GET /consultations/doctor_appointments
+  def doctor_appointments
+    @consultations = Consultation.current.where(doctor_id: params[:doctor_id]).order(appointment: :asc)
+    render json: @consultations, include: {
+      doctor: {
+        methods: [:user_image_url],
+        include: :phone_numbers  # Include phone_numbers here
+      },
+      patient: {methods: [:user_image_url]}
+    }
+  end
 
   private
 
@@ -131,9 +180,39 @@ end
   def set_consultation
     @consultation = Consultation.find(params[:id])
   end
+
+  def consultation_params_update
+    params.require(:consultation).permit(:id, :status, :refus_reason)
+  end
   def consultation_params
     permitted_params = params.permit(:appointment, :status, :refus_reason, :is_archived, :doctor_id, :patient_id, :appointment_type, :note, :id)
     permitted_params[:appointment_type] = permitted_params[:appointment_type].to_i if permitted_params[:appointment_type].present?
     permitted_params
+  end
+
+  def handle_sms(patient_id, doctor_id, consultation)
+    notification_service = NotificationService.new(consultation)
+    notification_service.send_sms_notifications
+  end
+
+  def send_push_notification(token, title, body)
+    return if token.blank?
+
+    uri = URI.parse('https://exp.host/--/api/v2/push/send')
+    header = { 'Content-Type': 'application/json' }
+    message = {
+      to: token,
+      sound: 'default',
+      title: title,
+      body: body,
+      data: { updated: true }
+    }
+
+    http = Net::HTTP.new(uri.host, uri.port)
+    http.use_ssl = true
+    request = Net::HTTP::Post.new(uri.request_uri, header)
+    request.body = message.to_json
+    response = http.request(request)
+    Rails.logger.info("Expo push response: #{response.body}")
   end
 end
