@@ -133,7 +133,7 @@ Rails.application.routes.draw do
       get "doctor_services/:id", to: "services#doctor_services"
       post "doctor_add_services/:id/add_services", to: "services#doctor_add_services"
       put "update_mobile_display", to: "services#update_mobile_display"
-
+      get "get_doctor_details/:id", to: "doctors#fetch_doctor_data"
       resources :certificates, only: [:show] do
         get :download, on: :member
       end
@@ -159,14 +159,16 @@ Rails.application.routes.draw do
       resources :users
       patch "update_settings", to: "users#update_settings"
       resources :maladies
-      post "predict/:patient_id/", to: "predictions#predict"
-      post "predict_mobile", to: "predictions#predict"
+      post "predict/patient/:patient_id", to: "predictions#predict"
+      post "predict/doctor/:doctor_id", to: "predictions#predict"
+      
 
       get 'verify', to: 'auth#verify'
       put "changeLanguage", to: "users#changeLanguage"
       get "doctor_consultations_today/:doctor_id", to: "consultations#doctor_consultations_today"
       get "doctor_appointments/:doctor_id", to: "consultations#doctor_appointments"
       post 'save_expo_token', to: 'users#save_token'
+      get 'doctor_details/:id', to: 'doctors#doctor_details'
       resources :consultations, only: [:update]
     end
   end

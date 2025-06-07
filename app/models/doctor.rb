@@ -51,4 +51,19 @@ class Doctor < User
   def approved_consultations_count
     consultations.approved.count
   end
+
+  def merged_services
+    services.map do |service|
+      doctor_service = doctor_services.find { |ds| ds.service_id == service.id }
+  
+      {
+        id: service.id,
+        name: service.name,
+        description: service.description,
+        price: service.price,
+        doctor_service_id: doctor_service&.id
+      }
+    end
+  end
+  
 end

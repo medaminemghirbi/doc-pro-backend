@@ -1,5 +1,5 @@
 class Api::Mobile::DoctorsController < ApplicationController
-  before_action :authorize_request
+  #before_action :authorize_request
 
   def nearest
     location = params[:location]
@@ -21,6 +21,16 @@ class Api::Mobile::DoctorsController < ApplicationController
     end
   end
 
+  def doctor_details
+    @doctor = Doctor.includes(:services, :doctor_services).find_by(id: params[:id])
+  
+    if @doctor
+      render json: @doctor, methods: [:user_image_url_mobile, :merged_services]
+    else
+      render json: { error: "Doctor not found" }, status: :not_found
+    end
+  end
+  
   def get_selected_doctor
     @doctor = Doctor.find(params[:id])
     render json: @doctor, methods: [:user_image_url_mobile]

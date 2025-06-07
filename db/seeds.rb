@@ -366,3 +366,14 @@ puts "Seeding Done ✅"
 #   doctor: doctor,
 #   patient: patient
 # )
+
+# Consultation.approved.find_each do |consultation|
+#   # Skip if a rating already exists for this consultation
+#   next if Rating.exists?(consultation_id: consultation.id)
+
+#   Rating.create!(
+#     consultation_id: consultation.id,
+#     rating_value: rand(1..5), # Random value from 1 to 5
+#     comment: ["Excellent", "Good", "Average", "Needs improvement", "Poor"].sample
+#   )
+# end
