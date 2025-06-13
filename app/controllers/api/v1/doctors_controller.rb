@@ -21,6 +21,9 @@ class Api::V1::DoctorsController < ApplicationController
     end
   end
 
+
+
+
   def index
     doctors = Doctor.current.order(:order)
   
@@ -235,9 +238,21 @@ class Api::V1::DoctorsController < ApplicationController
         only: [:id, :firstname, :lastname, :location, :address, :email_confirmed, :latitude, :longitude, :about_me],
         methods: [:user_image_url],
         include: {
-          phone_numbers: {only: [:number]},
-          ratings: {only: [:id, :comment, :rating_value]},
-          services: {only: [:id, :name, :description, :price, :duration_minutes]}  # Include services here
+          phone_numbers: {only: [:number, :phone_type]},
+          ratings: {
+            only: [:id, :comment, :rating_value],
+            include: {
+              consultation: {
+                include: {
+                  patient: {
+                    only: [:firstname, :lastname],
+                    methods: [:user_image_url]
+                  }
+                }
+              }
+            }
+          },
+    services: {only: [:id, :name, :description, :price, :duration_minutes]}  # Include services here
         }
       )
 

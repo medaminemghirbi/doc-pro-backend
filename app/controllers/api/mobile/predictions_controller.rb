@@ -6,7 +6,6 @@ class Api::Mobile::PredictionsController < ApplicationController
     image = params[:file]
     patient = Patient.find(params[:patient_id]) if params[:patient_id]
     doctor = Doctor.find(params[:doctor_id]) if params[:doctor_id]
-
     # Save the uploaded file to a temporary location
     sanitized_filename = image.original_filename.gsub(/\s+/, "_")
     image_path = Rails.root.join("tmp", sanitized_filename)
