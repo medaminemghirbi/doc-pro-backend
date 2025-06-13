@@ -12,8 +12,22 @@
 
 ActiveRecord::Schema[7.0].define(version: 2025_05_29_100342) do
   # These are extensions that must be enabled in order to support this database
+  enable_extension "pg_graphql"
+  enable_extension "pg_stat_statements"
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
+  enable_extension "supabase_vault"
+  enable_extension "uuid-ossp"
+
+  # Custom types defined in this database.
+  # Note that some types may not work with other database engines. Be careful if changing database.
+  create_enum "aal_level", ["aal1", "aal2", "aal3"]
+  create_enum "action", ["INSERT", "UPDATE", "DELETE", "TRUNCATE", "ERROR"]
+  create_enum "code_challenge_method", ["s256", "plain"]
+  create_enum "equality_op", ["eq", "neq", "lt", "lte", "gt", "gte", "in"]
+  create_enum "factor_status", ["unverified", "verified"]
+  create_enum "factor_type", ["totp", "webauthn", "phone"]
+  create_enum "one_time_token_type", ["confirmation_token", "reauthentication_token", "recovery_token", "email_change_token_new", "email_change_token_current", "phone_change_token"]
 
   create_table "active_storage_attachments", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "name", null: false
@@ -236,7 +250,7 @@ ActiveRecord::Schema[7.0].define(version: 2025_05_29_100342) do
     t.string "medical_history"
     t.integer "plan", default: 0
     t.integer "custom_limit", default: 0
-    t.integer "radius", default: 1
+    t.integer "radius", default: 5
     t.boolean "is_emailable", default: false
     t.boolean "is_notifiable", default: false
     t.boolean "is_smsable", default: false
@@ -254,7 +268,6 @@ ActiveRecord::Schema[7.0].define(version: 2025_05_29_100342) do
     t.string "expo_push_token"
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true
-    t.index ["jti"], name: "index_users_on_jti", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 

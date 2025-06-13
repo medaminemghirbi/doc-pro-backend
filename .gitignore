@@ -44,3 +44,5 @@
 app/deep_learning/val/
 
 app/deep_learning/adjusted_cnn.h5
+app/deep_learning/my_model.h5
+/pfe_image_test

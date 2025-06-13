@@ -4,13 +4,11 @@ require 'csv'
 require 'open-uri'
 class Api::V1::ScrapersController < ApplicationController
   def run
-    csv_file_path = Rails.root.join("app/services/dermatologue_doctors.csv")
 
-    last_run_file = Rails.root.join("app/services/last_scraper_run.json")
     # Check if the CSV file exists
-    unless File.exist?(csv_file_path)
-      RunScraper.call
-    end
+    RunScraper.call
+    csv_file_path = Rails.root.join("app/services/dermatologue_doctors.csv")
+    last_run_file = Rails.root.join("app/services/last_scraper_run.json")
 
     # Process CSV data
     CSV.foreach(csv_file_path, headers: true) do |row|
@@ -26,14 +24,14 @@ class Api::V1::ScrapersController < ApplicationController
           lastname: lastname,
           location: location,
           address: row['description'],
-          google_maps_url: row['google_maps_url'],
+          #google_maps_url: row['google_maps_url'],
           phone_number: row['phone_number'].presence || "",
           email: "#{lastname.downcase.gsub(' ', '.')}.#{firstname.downcase.gsub(' ', '.')}@gmail.com",
           password: "123456",
-          created_at: Faker::Date.between(from: Date.parse('2025-01-01'), to: Date.parse('2025-07-01')),
+          created_at: Faker::Date.between(from: Date.parse('2025-01-01'), to: Date.parse('2025-08-01')),
           password_confirmation: "123456",
           type: "Doctor",
-          email_confirmed: true
+          confirmed_at: Time.now
         )
 
         # Download and attach the avatar if present

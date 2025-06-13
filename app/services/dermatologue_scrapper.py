@@ -20,12 +20,14 @@ chrome_service = Service('app/services/chromedriver-linux64/chromedriver')
 # Initialize the WebDriver
 driver = webdriver.Chrome(service=chrome_service, options=chrome_options)
 
-# List of governments
-gouvernements = ['ben-arous', 'bizerte', 'beja', 'gabes', 'gafsa', 'ariana',
-                 'hammamet', 'jendouba', 'kairouan', 'kasserine',
-                 'kebili', 'la-manouba', 'le-kef', 'mahdia', 'medenine',
-                 'monastir', 'nabeul', 'sfax', 'sidi-bou-zid', 'siliana',
-                 'sousse', 'tataouine', 'tozeur', 'tunis', 'zaghouan']
+# # List of governments
+# gouvernements = ['ben-arous', 'bizerte', 'beja', 'gabes', 'gafsa', 'ariana',
+#                  'hammamet', 'jendouba', 'kairouan', 'kasserine',
+#                  'kebili', 'la-manouba', 'le-kef', 'mahdia', 'medenine',
+#                  'monastir', 'nabeul', 'sfax', 'sidi-bou-zid', 'siliana',
+#                  'sousse', 'tataouine', 'tozeur', 'tunis', 'zaghouan']
+
+gouvernements = ['sousse']
 
 specialities = ['dermatologue', 'cardiologue', 'pediatre', 'medecin-generaliste']
 # Initialize an empty list to store doctor data
@@ -88,11 +90,11 @@ for gouvernement in gouvernements:
                     phone_number = phone_elem['href'].replace('tel:', '') if phone_elem else '#'
                     doctor_info['phone_number'] = phone_number
 
-                # Extract Google Maps location URL
-                maps_elem = profile_bs.find('a', {'href': True, 'target': 'new'})
-                if maps_elem:
-                    google_maps_url = maps_elem['href'] if maps_elem else '#'
-                    doctor_info['google_maps_url'] = google_maps_url
+                # # Extract Google Maps location URL
+                # maps_elem = profile_bs.find('a', {'href': True, 'target': 'new'})
+                # if maps_elem:
+                #     google_maps_url = maps_elem['href'] if maps_elem else '#'
+                #     doctor_info['google_maps_url'] = google_maps_url
 
             doctors_data.append(doctor_info)
 
