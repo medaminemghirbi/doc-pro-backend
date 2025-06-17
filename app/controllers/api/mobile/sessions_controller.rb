@@ -56,4 +56,33 @@ include CurrentUserConcern
         reset_session
         render json: { status: 200, logged_out: true }
     end
+
+    def login_qr
+    token = params[:token]
+    begin
+      # Decode JWT token
+      decoded_token = JsonWebToken.decode(token)
+      user_id = decoded_token['user_id']
+      exp = decoded_token['exp']
+
+      if Time.now.to_i > exp
+        render json: { error: 'Token expired' }, status: :unauthorized and return
+      end
+
+      user = User.find_by(id: user_id)
+      if user
+        render json: {
+            logged_in: true,
+            user: user.as_json(methods: [:user_image_url_mobile]),
+            type: user.type,
+            token: token
+        }
+      else
+        render json: { error: 'User not found' }, status: :unauthorized
+      end
+
+    rescue JWT::DecodeError
+      render json: { error: 'Invalid token' }, status: :unauthorized
+    end
+  end
 end

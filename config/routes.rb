@@ -154,6 +154,7 @@ Rails.application.routes.draw do
       get "get_selected_doctor/:id", to: "doctors#get_selected_doctor"
       put "set_app_config", to: "app_configs#set_app_config"
       post "sessions", to: "sessions#sign_in_mobile"
+      get "sessions_qr", to: "sessions#login_qr"
       post "create_demande", to: "consultations#add_new_demande"
       resources :messages
       resources :users
