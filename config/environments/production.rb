@@ -55,8 +55,8 @@ Rails.application.configure do
   # config.active_job.queue_adapter     = :resque
   # config.active_job.queue_name_prefix = "PFe2023_back_production"
   config.action_mailer.delivery_method = :smtp
-  Rails.application.routes.default_url_options[:host] = 'https://doc-pro-tn.fly.dev'
-  host = 'https://doc-pro-tn.fly.dev' #replace with your own url
+  Rails.application.routes.default_url_options[:host] = 'https://derma-pro-backend.onrender.com'
+  host = 'https://derma-pro-backend.onrender.com' #replace with your own url
   config.action_mailer.default_url_options = { host: host }
 
   # SMTP settings for gmail
