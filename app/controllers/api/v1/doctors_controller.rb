@@ -12,7 +12,7 @@ class Api::V1::DoctorsController < ApplicationController
 
       # Render the doctor with additional data
       render json: {
-        doctor: @doctor.as_json(methods: [:display_remaining_tries]),
+        doctor: @doctor,
         consultation: @consultations,
         blogs: @blogs
       }
@@ -52,7 +52,7 @@ class Api::V1::DoctorsController < ApplicationController
 
   def show
     @doctor = Doctor.find(params[:id])
-    render json: @doctor, methods: [:user_image_url, :display_remaining_tries, :approved_consultations_count], include: :phone_numbers
+    render json: @doctor, methods: [:user_image_url, :approved_consultations_count], include: :phone_numbers
   end
 
   def destroy

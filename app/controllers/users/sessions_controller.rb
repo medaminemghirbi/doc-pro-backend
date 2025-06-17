@@ -13,11 +13,13 @@ class Users::SessionsController < Devise::SessionsController
       # Optional blacklist on login if you want future logout control
       Rails.cache.write("blacklist/#{token}", true, expires_in: exp_time - Time.current)
 
+      qr_login_url = "myapp://qr-login?token=#{token}"
       render json: {
         logged_in: true,
         user: UserSerializer.new(resource),
         type: resource.type,
         token: token,
+        qr_url: qr_login_url,
         exp: exp_time.strftime("%m-%d-%Y %H:%M")
       }, status: :ok
     else
