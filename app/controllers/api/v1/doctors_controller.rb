@@ -28,7 +28,7 @@ class Api::V1::DoctorsController < ApplicationController
     doctors = Doctor.current.order(:order)
   
     render json: doctors.map { |doctor|
-      doctor.as_json(methods: [:user_image_url]).merge(confirmed_at: doctor.confirmed_at)
+      doctor.as_json(methods: [:user_image_url, :verification_pdf_url]).merge(confirmed_at: doctor.confirmed_at)
     }
   end
   
@@ -81,12 +81,13 @@ class Api::V1::DoctorsController < ApplicationController
   def activate_compte
     @user = User.find(params[:id])
 
-    if @user.update(confirmed_at: Time.now, confirmation_token: nil)
+    if @user.update(confirmed_at: Time.now, confirmation_token: nil, is_verified: true)
       render json: {message: "Account successfully activated."}, status: :ok
     else
       render json: {errors: @user.errors.full_messages}, status: :unprocessable_entity
     end
   end
+
 
   def nearest
     location = params[:location]
@@ -100,7 +101,7 @@ class Api::V1::DoctorsController < ApplicationController
     end
 
     if coordinates
-      @doctors = Doctor.near(coordinates, radius, units: :km)
+      @doctors = Doctor.verified.near(coordinates, radius, units: :km)
       render json: @doctors.as_json(
         methods: [:user_image_url],
         include: {

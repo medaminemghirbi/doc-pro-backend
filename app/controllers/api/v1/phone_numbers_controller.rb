@@ -46,6 +46,6 @@ class Api::V1::PhoneNumbersController < ApplicationController
   end
 
   def phone_number_params
-    params.require(:phone_number).permit(:number, :phone_type, :doctor_id, :is_primary)
+    params.require(:phone_number).permit(:number, :phone_type, :doctor_id)
   end
 end

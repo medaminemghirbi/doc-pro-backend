@@ -4,6 +4,8 @@ class Consultation < ApplicationRecord
   enum appointment_type: {onsite: 0, online: 1}
 
   scope :current, -> { where(is_archived: false) }
+  scope :payed, -> { where(is_payed: true) }
+
   # after_create_commit { broadcast_notification }
 
   ## Includes

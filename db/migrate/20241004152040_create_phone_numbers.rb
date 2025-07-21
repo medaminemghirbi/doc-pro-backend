@@ -5,7 +5,6 @@ class CreatePhoneNumbers < ActiveRecord::Migration[7.0]
       t.string :number, null: false
       t.string :phone_type, null: false
       t.boolean :is_archived, default: false
-      t.boolean :is_primary, default: false
       t.integer :order, default: 1
 
       t.timestamps

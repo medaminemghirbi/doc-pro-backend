@@ -228,6 +228,12 @@ class Api::V1::UsersController < ApplicationController
     end
   end
 
+
+    def upload_verification_pdf
+      current_doctor = User.find(params[:id])
+      current_doctor.verification_pdf.attach(params[:verification_pdf])
+      render json: { message: 'Verification PDF uploaded' }, status: :ok
+    end
   # ************************* les fonctions private de classe ***********************#
   private
 

@@ -21,11 +21,12 @@ def download_image(url)
 end
 
 def generate_random_appointment_time
-  start_date = Time.now
-  end_date = start_date + 180.days
+  year = Time.now.year
+  start_date = Date.new(year, 7, 7)
+  end_date = Date.new(year, 7, 20)
   time_slots = []
 
-  (start_date.to_date..end_date.to_date).each do |date|
+  (start_date..end_date).each do |date|
     time = Time.zone.parse("09:00").change(year: date.year, month: date.month, day: date.day)
     while time <= Time.zone.parse("16:00").change(year: date.year, month: date.month, day: date.day)
       time_slots << time
@@ -35,6 +36,8 @@ def generate_random_appointment_time
 
   time_slots.sample
 end
+
+
 
 # === Seed AppConfig ===
 AppConfig.create!(key: "mobile", value: "")
@@ -64,7 +67,7 @@ puts "🩺 Seeding Doctors from CSV..."
 csv_path = Rails.root.join("app/services/dermatologue_doctors.csv")
 starting_order = 1
 
-CSV.foreach(csv_path, headers: true).first(5).each_with_index do |row, index|
+CSV.foreach(csv_path, headers: true).first(4).each_with_index do |row, index|
   lat, long = random_sousse_coordinates
   doctor = Doctor.create!(
     firstname: row["name"].split.first,
@@ -73,6 +76,7 @@ CSV.foreach(csv_path, headers: true).first(5).each_with_index do |row, index|
     latitude: lat,
     longitude: long,
     email: Faker::Internet.unique.email,
+    email: "#{row['name'].split.first.downcase}.#{row['name'].split[1].downcase}@dermapro.com",
     order: starting_order + index,
     password: "123456",
     password_confirmation: "123456",
@@ -116,7 +120,7 @@ rescue => e
   nil
 end
 
-6.times do |i|
+4.times do |i|
   phone_number = Faker::PhoneNumber.phone_number.gsub(/\D/, "").slice(0, 8)
   gender = rand(0..1)
 
@@ -130,7 +134,7 @@ end
     phone_number: phone_number,
     plateform: rand(0..1),
     gender: gender,
-    location: %w[sousse].sample,
+    location: %w[sousse monastir nabeul bizerte].sample,
     confirmed_at: Time.zone.now
   )
 
@@ -170,39 +174,42 @@ diseases.each_with_index do |data, i|
   end
 end
 
-# === Seed Consultations ===
-puts "📅 Seeding Consultations..."
-if Doctor.any? && Patient.any?
-  20.times do
-    doctor = Doctor.all.sample
-    patient = Patient.all.sample
-    appointment_time = generate_random_appointment_time
-    appointment_date = appointment_time.to_date
+# # === Seed Consultations ===
+# puts "📅 Seeding Consultations..."
+# if Doctor.any? && Patient.any?
+#   %i[pending approved rejected].each do |status|
+#     10.times do
+#       doctor = Doctor.all.sample
+#       patient = Patient.all.sample
+#       appointment_time = generate_random_appointment_time
+#       appointment_date = appointment_time.to_date
 
-    while Consultation.exists?(doctor: doctor, appointment: appointment_time) ||
-          Consultation.exists?(doctor: doctor, patient: patient, appointment: appointment_date.all_day)
+#       # Vérifier unicité par doctor/patient/date
+#       while Consultation.exists?(doctor: doctor, appointment: appointment_time) ||
+#             Consultation.exists?(doctor: doctor, patient: patient, appointment: appointment_date.all_day)
+#         appointment_time = generate_random_appointment_time
+#         appointment_date = appointment_time.to_date
+#         patient = Patient.all.sample
+#       end
 
-      appointment_time = generate_random_appointment_time
-      appointment_date = appointment_time.to_date
-      patient = Patient.all.sample
-    end
+#       refus_reason = status == :rejected ? Faker::Lorem.sentence : nil
 
-    status = %i[pending approved rejected].sample
-    refus_reason = status == :rejected ? Faker::Lorem.sentence : nil
+#       Consultation.create!(
+#         appointment: appointment_time,
+#         status: Consultation.statuses[status],
+#         doctor: doctor,
+#         patient: patient,
+#         is_archived: false,
+#         refus_reason: refus_reason
+#       )
+#       puts "✔️ Consultation #{status} on #{appointment_time.strftime("%d/%m/%Y %H:%M")}"
+#     end
+#   end
+#   puts "✅ Consultations seeded"
+# else
+#   puts "⚠️ Doctors or Patients missing — skipping consultations"
+# end
 
-    Consultation.create!(
-      appointment: appointment_time,
-      status: Consultation.statuses[status],
-      doctor: doctor,
-      patient: patient,
-      is_archived: false,
-      refus_reason: refus_reason
-    )
-  end
-  puts "✔️ Consultations seeded"
-else
-  puts "⚠️ Doctors or Patients missing — skipping consultations"
-end
 
 # === Seed Blogs ===
 puts "📝 Seeding Blogs..."
@@ -233,54 +240,74 @@ doctors = Doctor.all
 end
 
 
-puts "💬 Seeding Messages..."
+  puts "💬 Seeding Messages..."
 
-PATIENT_MESSAGES = [
-  "J’ai des plaques rouges qui apparaissent sur mes bras.",
-  "Ma peau me gratte surtout la nuit, que faire ?",
-  "J’ai remarqué un grain de beauté qui a changé de forme.",
-  "La crème prescrite brûle ma peau, est-ce normal ?",
-  "Des boutons sont apparus après avoir utilisé un nouveau savon.",
-  "Mon cuir chevelu est très irrité ces derniers temps.",
-  "Est-ce que cette éruption cutanée est contagieuse ?",
-  "J’ai une allergie apparente, dois-je consulter en urgence ?",
-  "Les démangeaisons s’aggravent malgré le traitement.",
-  "Une tache foncée s’est formée sur ma joue récemment."
-]
+  PATIENT_MESSAGES = [
+    "J’ai des plaques rouges qui apparaissent sur mes bras.",
+    "Ma peau me gratte surtout la nuit, que faire ?",
+    "J’ai remarqué un grain de beauté qui a changé de forme.",
+    "La crème prescrite brûle ma peau, est-ce normal ?",
+    "Des boutons sont apparus après avoir utilisé un nouveau savon.",
+    "Mon cuir chevelu est très irrité ces derniers temps.",
+    "Est-ce que cette éruption cutanée est contagieuse ?",
+    "J’ai une allergie apparente, dois-je consulter en urgence ?",
+    "Les démangeaisons s’aggravent malgré le traitement.",
+    "Une tache foncée s’est formée sur ma joue récemment."
+  ]
 
-DOCTOR_MESSAGES = [
-  "Le patient présente une dermatite atopique modérée.",
-  "Une biopsie cutanée est recommandée pour ce cas.",
-  "Il s'agit d'un eczéma de contact probable, traitement topique conseillé.",
-  "Surveillance d’un nævus suspect conseillé tous les 6 mois.",
-  "Prescription d’une pommade corticoïde à appliquer deux fois par jour.",
-  "Le patient souffre de psoriasis au niveau des coudes.",
-  "Aucune lésion suspecte détectée, simple irritation cutanée.",
-  "Le test allergologique est recommandé pour identifier les déclencheurs.",
-  "Un traitement antifongique est prescrit pour la mycose observée.",
-  "La peau présente des signes d’hyperpigmentation post-inflammatoire."
-]
+  DOCTOR_MESSAGES = [
+    "Le patient présente une dermatite atopique modérée.",
+    "Une biopsie cutanée est recommandée pour ce cas.",
+    "Il s'agit d'un eczéma de contact probable, traitement topique conseillé.",
+    "Surveillance d’un nævus suspect conseillé tous les 6 mois.",
+    "Prescription d’une pommade corticoïde à appliquer deux fois par jour.",
+    "Le patient souffre de psoriasis au niveau des coudes.",
+    "Aucune lésion suspecte détectée, simple irritation cutanée.",
+    "Le test allergologique est recommandé pour identifier les déclencheurs.",
+    "Un traitement antifongique est prescrit pour la mycose observée.",
+    "La peau présente des signes d’hyperpigmentation post-inflammatoire."
+  ]
 
+  puts "✔️ Creating a coherent chat-like conversation..."
 
-10.times do
-  sender = User.all.sample
-  message_body = if sender.is_a?(Doctor)
-                   DOCTOR_MESSAGES.sample
-                 else
-                   PATIENT_MESSAGES.sample
-                 end
+  users = {
+    doctors: User.where(type: 'Doctor').to_a,
+    patients: User.where(type: 'Patient').to_a
+  }
 
-  Message.create!(
-    body: message_body,
-    sender_id: sender.id,
-    created_at: Time.zone.now,
-    updated_at: Time.zone.now
-  )
+  conversation_length = 10
+  conversation = []
 
-  puts "✔️ Message seeded from #{sender.type} #{sender.firstname}"
-end
+  conversation_length.times do |i|
+    if i.even? # Patient message
+      sender = users[:patients].sample
+      message_body = PATIENT_MESSAGES.sample
+    else # Doctor reply
+      sender = users[:doctors].sample
+      message_body = DOCTOR_MESSAGES.sample
+    end
 
-puts "✔️ 10 messages seeded from random users"
+    conversation << {
+      body: message_body,
+      sender_id: sender.id,
+      created_at: Time.zone.now,
+      updated_at: Time.zone.now,
+      sender_type: sender.type,
+      sender_name: sender.firstname
+    }
+  end
+
+  conversation.each do |msg|
+    Message.create!(
+      body: msg[:body],
+      sender_id: msg[:sender_id],
+      created_at: msg[:created_at],
+      updated_at: msg[:updated_at]
+    )
+    puts "💬 #{msg[:sender_type]} #{msg[:sender_name]} sent: “#{msg[:body]}”"
+  end
+
+  puts "✔️ #{conversation_length} coherent chat-like messages seeded"
 
 puts "Seeding completed! Created #{Holiday.count} holidays."
 

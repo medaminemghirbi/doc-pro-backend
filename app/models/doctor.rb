@@ -1,6 +1,8 @@
 class Doctor < User
   # #scopes
   scope :current, -> { where(is_archived: false) }
+  scope :verified, -> { where( is_verified: true) }
+
   # #Includes
   include Rails.application.routes.url_helpers
 

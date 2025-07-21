@@ -46,7 +46,7 @@ class Api::V1::ConsultationsController < ApplicationController
     if valid_status?(consultation_params[:status])
       if @consultation.update(consultation_params)
         handle_notifications(@consultation.patient_id, @consultation.doctor_id, @consultation)
-        #handle_sms(@consultation.patient_id, @consultation.doctor_id, @consultation)
+        handle_sms(@consultation.patient_id, @consultation.doctor_id, @consultation)
         send_push_notification(@patient.expo_push_token, "Consultation Updated", "Your consultation has been updated.")
         render json: @consultation
       else

@@ -23,10 +23,15 @@ class User < ApplicationRecord
 
   ## Associations
   has_one_attached :avatar, dependent: :destroy
-
+  has_one_attached :verification_pdf
   has_many :phone_numbers, dependent: :destroy
   has_many :sent_messages, class_name: "Message"
   has_many :received_messages, class_name: "Message"
+
+  def verification_pdf_url
+    # Get the URL of the associated image
+    verification_pdf.attached? ? url_for(verification_pdf) : nil
+  end
 
   def user_image_url
     # Get the URL of the associated image

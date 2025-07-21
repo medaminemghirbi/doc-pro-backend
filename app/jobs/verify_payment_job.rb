@@ -3,8 +3,8 @@ class VerifyPaymentJob < ApplicationJob
 
   def perform
     # Find all payments that are pending
-    pending_payments = Payment.where(status: :pending)
-
+    #pending_payments = Payment.where(status: :pending)
+    pending_payments = Payment.where(status: [:pending, :failed])
     pending_payments.each do |payment|
       # Perform verification for each payment
       verify_payment(payment)

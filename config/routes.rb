@@ -46,6 +46,7 @@ Rails.application.routes.draw do
 
       resources :doctors do
         post "activate_compte", on: :member
+        patch :verify, on: :member
       end
       resources :patients
       resources :consultations, only: [:show, :create, :destroy, :update] do
@@ -137,6 +138,9 @@ Rails.application.routes.draw do
       resources :certificates, only: [:show] do
         get :download, on: :member
       end
+
+      patch 'upload_verification_pdf', to: 'users#upload_verification_pdf'
+
     end
   end
 
