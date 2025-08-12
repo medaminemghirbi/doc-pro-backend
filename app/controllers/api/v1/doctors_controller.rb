@@ -236,7 +236,7 @@ class Api::V1::DoctorsController < ApplicationController
 
     if doctor
       doctor_data = doctor.as_json(
-        only: [:id, :firstname, :lastname, :location, :address, :email_confirmed, :latitude, :longitude, :about_me],
+        only: [:id, :firstname, :lastname, :location, :address, :email_confirmed],
         methods: [:user_image_url],
         include: {
           phone_numbers: {only: [:number, :phone_type]},

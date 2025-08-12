@@ -19,7 +19,6 @@ class Users::RegistrationsController < Devise::RegistrationsController
     build_resource(sign_up_params.merge(type: user_class.name, plateform: 0))
     resource.save
     if resource.persisted?
-      UserMailer.registration_confirmation(resource).deliver_later
       render json: { message: 'Signed up successfully.', user: resource }, status: :created
     else
       render json: { message: 'Sign up failed.', errors: resource.errors.full_messages }, status: :unprocessable_entity
@@ -28,6 +27,9 @@ class Users::RegistrationsController < Devise::RegistrationsController
   private
 
   def sign_up_params
-    params.require(:registration).permit(:lastname, :firstname, :email, :password, :password_confirmation, :type, :location, :gender)
+    params.require(:registration).permit(:lastname, :firstname, :email, :password,
+    :birthday, :address, :phone_number,
+    :medical_history, :civil_status,
+    :password_confirmation, :type, :location, :gender, :doctor_id)
   end
 end

@@ -23,22 +23,12 @@ Rails.application.routes.draw do
   resources :sessions, only: [:create]
   delete :logout, to: "sessions#logout"
   get :logged_in, to: "sessions#logged_in"
-  get "weeks/:doctor_id(/:year)", to: "weeks#index"
   # add registration (register page ) + confirmation de l'email
   resources :registrations, only: [:create] do
     member do
       get :confirm_email
     end
   end
-  post "predict/:doctor_id/", to: "predictions#predict"
-  post "predict/:consultation_id", to: "predictions#predict"
-
-  post "sent_report/:patient_id/:prediction_id", to: "predictions#sent_report"
-  get "predictions_by_consultations/:consultation_id", to: "predictions#predictions_by_consultations"
-
-  
-  resources :predictions
-  get "download_file/:id", to: "predictions#download"
 
   namespace :api do
     namespace :v1 do
@@ -61,11 +51,11 @@ Rails.application.routes.draw do
       resources :doctor_services, only: [:destroy]
 
       resources :notifications, only: [:create, :index]
+      get "get_notifications/:id", to: "notifications#get_notifications"
       resources :phone_numbers
       resources :custom_mails
-
       resources :documents
-
+      resources :consultation_types
       resources :users do
         member do
           put "email_notifications", to: "users#update_email_notifications"

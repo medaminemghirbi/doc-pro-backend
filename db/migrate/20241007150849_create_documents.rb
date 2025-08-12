@@ -5,7 +5,8 @@ class CreateDocuments < ActiveRecord::Migration[7.0]
       t.uuid :doctor_id, null: false
       t.boolean :is_archived, default: false
       t.integer :order, default: 1
-
+      t.date :remind_date
+      t.datetime :notified_at
       t.timestamps
     end
     add_foreign_key :documents, :users, column: :doctor_id

@@ -47,7 +47,6 @@ class Api::V1::ConsultationsController < ApplicationController
       if @consultation.update(consultation_params)
         handle_notifications(@consultation.patient_id, @consultation.doctor_id, @consultation)
         handle_sms(@consultation.patient_id, @consultation.doctor_id, @consultation)
-        send_push_notification(@patient.expo_push_token, "Consultation Updated", "Your consultation has been updated.")
         render json: @consultation
       else
         render json: @consultation.errors, status: :unprocessable_entity
@@ -217,26 +216,7 @@ class Api::V1::ConsultationsController < ApplicationController
     notification_service = NotificationService.new(consultation)
     notification_service.send_sms_notifications
   end
-  def send_push_notification(token, title, body)
-    return if token.blank?
-  
-    uri = URI.parse('https://exp.host/--/api/v2/push/send')
-    header = { 'Content-Type': 'application/json' }
-    message = {
-      to: token,
-      sound: 'default',
-      title: title,
-      body: body,
-      data: { updated: true }
-    }
-  
-    http = Net::HTTP.new(uri.host, uri.port)
-    http.use_ssl = true
-    request = Net::HTTP::Post.new(uri.request_uri, header)
-    request.body = message.to_json
-    response = http.request(request)
-    Rails.logger.info("Expo push response: #{response.body}")
-  end
+
   TIME_SLOTS = [
     {time: "09:00"},
     {time: "09:30"},
