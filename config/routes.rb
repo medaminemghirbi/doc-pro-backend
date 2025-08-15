@@ -30,6 +30,11 @@ Rails.application.routes.draw do
     end
   end
 
+  namespace :oauth do
+    namespace :google_oauth2 do
+      get "callback"
+    end
+  end
   namespace :api do
     namespace :v1 do
       resources :password_resets
@@ -60,7 +65,7 @@ Rails.application.routes.draw do
         member do
           put "email_notifications", to: "users#update_email_notifications"
           put "system_notifications", to: "users#update_system_notifications"
-          put "working_saturday", to: "users#working_saturday"
+          put "working_weekends", to: "users#working_weekends"
           put "sms_notifications", to: "users#sms_notifications"
           put "working_online", to: "users#working_online"
           put "update_wallet_amount", to: "users#update_wallet_amount"

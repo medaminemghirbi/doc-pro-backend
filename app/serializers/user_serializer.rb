@@ -3,9 +3,9 @@ class UserSerializer < ActiveModel::Serializer
              :civil_status, :is_archived, :order, :location,
              :code_user, :phone_number, :medical_history, 
              :is_emailable, :is_notifiable, 
-             :is_smsable, :working_saturday, 
+             :is_smsable, :working_weekends, 
              :created_at, :updated_at, :language, :confirmation_code, 
-             :confirmed_at,  :type, :is_verified, :time_zone,
+             :confirmed_at,  :type, :is_verified, :account_access_granted_at,
              :confirmation_code_generated_at, :jti, :user_image_url,  :verification_pdf_url
 
   def user_image_url

@@ -5,16 +5,12 @@ class Api::V1::UsersController < ApplicationController
   def count_all_for_admin
     @apointements = Consultation.current.all.count
     @patients = Patient.current.all.count
-    @blogs = Blog.current.all.count
     @doctors = Doctor.current.all.count
-    @maladies = Maladie.current.all.count
 
     render json: {
       apointements: @apointements,
       patients: @patients,
-      blogs: @blogs,
-      doctors: @doctors,
-      maladies: @maladies
+      doctors: @doctors
     }
   end
 
@@ -56,6 +52,15 @@ class Api::V1::UsersController < ApplicationController
     render json: result
   end
   
+
+  def update_location
+    @user = User.find(params[:id])
+    if @user.update(params_location_doctor)
+      render json: @user, methods: [:user_image_url]
+    else
+      render json: @user.errors, statut: :unprocessable_entity
+    end
+  end
 
   def update_image_user
     @user = User.find(params[:id])
@@ -246,9 +251,12 @@ class Api::V1::UsersController < ApplicationController
   end
 
   def params_informations_user
-    permitted_params = params.permit(:id, :civil_status, :gender, :time_zone, :birthday, :lastname, :firstname, :location, :radius, :phone_number, :about_me)
+    permitted_params = params.permit(:id, :civil_status, :gender, :birthday, :lastname, :firstname, :location, :radius, :phone_number, :about_me)
     permitted_params[:radius] = permitted_params[:radius].to_i if permitted_params[:radius].present?
     permitted_params
   end
 
+  def params_location_doctor
+    params.permit(:id, :latitude, :longitude)
+  end
 end

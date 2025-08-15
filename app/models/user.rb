@@ -13,13 +13,17 @@ class User < ApplicationRecord
   # #scopes
   scope :current, -> { where(is_archived: false) }
 
+  # Admin functionality
+  def admin?
+    email == 'admin@dermapro.tn' || role == 'admin'
+  end
+
   # #Includes
   include Rails.application.routes.url_helpers
   ## Callbacks
   before_save :generate_code_user
   before_create :attach_avatar_based_on_gender
   before_validation :generate_password_for_patient, if: -> { self.type == 'Patient' && encrypted_password.blank? }
-  after_create :schedule_disable_acount_access
   ## Validations
   validates :email, uniqueness: true
 
@@ -79,7 +83,4 @@ class User < ApplicationRecord
     self.password_confirmation = generated
   end
 
-  def schedule_disable_acount_access
-    DisableAcountAccessJob.set(wait: 14.days).perform_later(self)
-  end
 end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_08_08_161941) do
+ActiveRecord::Schema[7.0].define(version: 2025_08_14_094057) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -53,14 +53,6 @@ ActiveRecord::Schema[7.0].define(version: 2025_08_08_161941) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["consultation_id"], name: "index_consultation_reports_on_consultation_id", unique: true
-  end
-
-  create_table "consultation_types", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.string "name", null: false
-    t.text "color", null: false
-    t.text "description", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
   end
 
   create_table "consultations", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -115,6 +107,45 @@ ActiveRecord::Schema[7.0].define(version: 2025_08_08_161941) do
     t.index ["recipient_type", "recipient_id"], name: "index_noticed_notifications_on_recipient"
   end
 
+  create_table "payments", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "user_subscription_id", null: false
+    t.decimal "amount", precision: 10, scale: 2, null: false
+    t.string "payment_method", null: false
+    t.integer "status", default: 0
+    t.datetime "paid_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "subscriptions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "name", null: false
+    t.decimal "price", precision: 8, scale: 2, default: "0.0"
+    t.integer "duration_in_days"
+    t.boolean "has_access_account", default: false
+    t.boolean "has_access_agenda", default: false
+    t.boolean "has_access_patients", default: false
+    t.boolean "has_access_hr_module", default: false
+    t.boolean "has_access_intelligent_prescription", default: false
+    t.boolean "has_access_manage_notifications", default: false
+    t.boolean "has_access_manage_documents", default: false
+    t.boolean "has_access_multilang_platform", default: false
+    t.boolean "has_access_ia_assistance", default: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "user_subscriptions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "doctor_id", null: false
+    t.uuid "subscription_id", null: false
+    t.datetime "start_date"
+    t.datetime "end_date"
+    t.string "status", default: "active"
+    t.string "payment_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["doctor_id", "subscription_id"], name: "index_user_subscriptions_on_doctor_id_and_subscription_id", unique: true
+  end
+
   create_table "users", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "email", default: ""
     t.string "encrypted_password", default: "", null: false
@@ -125,6 +156,8 @@ ActiveRecord::Schema[7.0].define(version: 2025_08_08_161941) do
     t.datetime "confirmed_at"
     t.datetime "confirmation_sent_at"
     t.string "unconfirmed_email"
+    t.string "confirmation_code"
+    t.datetime "confirmation_code_generated_at"
     t.string "firstname"
     t.string "lastname"
     t.string "address"
@@ -132,6 +165,8 @@ ActiveRecord::Schema[7.0].define(version: 2025_08_08_161941) do
     t.integer "gender", default: 0
     t.integer "civil_status", default: 0
     t.boolean "is_archived", default: false
+    t.boolean "is_verified", default: false
+    t.integer "plateform"
     t.integer "order", default: 1
     t.string "type"
     t.string "location"
@@ -142,26 +177,23 @@ ActiveRecord::Schema[7.0].define(version: 2025_08_08_161941) do
     t.boolean "is_emailable", default: false
     t.boolean "is_notifiable", default: false
     t.boolean "is_smsable", default: false
-    t.boolean "working_saturday", default: false
-    t.integer "plateform"
-    t.string "time_zone"
+    t.boolean "working_weekends", default: false
     t.uuid "doctor_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
     t.string "language", default: "fr"
-    t.string "confirmation_code"
-    t.datetime "confirmation_code_generated_at"
-    t.string "jti", default: "", null: false
-    t.boolean "is_verified", default: false
-    t.boolean "has_access_acount", default: true
+    t.string "jti", default: ""
+    t.boolean "has_access_account", default: true
     t.boolean "has_access_agenda", default: true
     t.boolean "has_access_patients", default: true
+    t.boolean "has_access_acount", default: true
     t.boolean "has_access_hr_module", default: false
     t.boolean "has_access_intelligent_prescrip", default: false
     t.boolean "has_access_manage_notifications", default: false
     t.boolean "has_access_manage_documents", default: false
     t.boolean "has_access_multilang_platform", default: false
-    t.datetime "acount_access_granted_at", default: -> { "CURRENT_TIMESTAMP" }
+    t.boolean "has_access_ia_assistance", default: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.datetime "account_access_granted_at", default: -> { "CURRENT_TIMESTAMP" }
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end

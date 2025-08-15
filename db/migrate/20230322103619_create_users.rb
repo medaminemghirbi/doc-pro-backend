@@ -17,7 +17,8 @@ class CreateUsers < ActiveRecord::Migration[7.0]
       t.datetime :confirmed_at
       t.datetime :confirmation_sent_at
       t.string   :unconfirmed_email
-
+      t.string   :confirmation_code
+      t.datetime :confirmation_code_generated_at
       ## User Information
       t.string :firstname
       t.string :lastname
@@ -26,6 +27,8 @@ class CreateUsers < ActiveRecord::Migration[7.0]
       t.integer :gender, default: 0
       t.integer :civil_status, default: 0
       t.boolean :is_archived, default: false
+      t.boolean :is_verified, default: false
+      t.integer :plateform
       t.integer :order, default: 1
       t.string :type # STI
 
@@ -42,16 +45,16 @@ class CreateUsers < ActiveRecord::Migration[7.0]
       t.boolean :is_emailable, default: false
       t.boolean :is_notifiable, default: false
       t.boolean :is_smsable, default: false
-      t.boolean :working_saturday, default: false
-      t.integer :plateform
-      t.string :time_zone
-      t.uuid :doctor_id
+      t.boolean :working_weekends, default: false
 
+      t.uuid :doctor_id
+      t.string :language, default: "fr"
+      t.string :jti, default: ""
       t.timestamps
     end
 
     add_index :users, :reset_password_token, unique: true
     add_index :users, :confirmation_token,   unique: true
-
+    add_column :users, :account_access_granted_at, :datetime, default: -> { 'CURRENT_TIMESTAMP' }
   end
 end
