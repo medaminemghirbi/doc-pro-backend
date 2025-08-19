@@ -1,0 +1,15 @@
+<%= @greeting %> <%= @user.firstname %>, <br><br>
+
+Welcome to our platform! <br>
+To activate your account and enjoy full access, please complete your monthly payment by clicking the link below: <br><br>
+
+<a href="<%= @payment_link %>" style="padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px;">
+  Pay Now
+</a>
+<br><br>
+
+If the button above doesn’t work, copy and paste this link into your browser: <br>
+<%= @payment_link %>
+<br><br>
+
+If you did not register for our service, you can ignore this email and no payment will be taken.

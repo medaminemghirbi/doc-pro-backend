@@ -1,32 +1,32 @@
 class Api::V1::NotificationsController < ApplicationController
-  def create
-    # Check if a similar notification already exists
-    notification = Notification.find_or_initialize_by(
-      consultation_id: notification_params[:consultation_id], 
-      status: notification_params[:status]
-    )
-    
-    # Update the received_at timestamp if it's a new notification or not
-    notification.received_at ||= notification_params[:received_at]
-  
-    if notification.save
-      render json: { message: 'Notification saved successfully', notification: notification }, status: :created
+  before_action :set_notification, only: [:read, :unread]
+
+  def get_notifications
+    notifications = Doctor.find(params[:id]).notifications.newest_first
+    render json: notifications, each_serializer: NotificationSerializer
+  end
+
+  def read
+    if @notification.unread?
+      @notification.mark_as_read!
+      render json: {message: "marked as read"}
     else
-      render json: { errors: notification.errors.full_messages }, status: :unprocessable_entity
+      render json: {message: "read already"}, status: :not_modified
     end
   end
-  
 
-  # GET /notifications
-  def index
-    notifications = Notification.all.order(created_at: :desc)
-    render json: notifications
+  def unread
+    if @notification.read?
+      @notification.mark_as_unread!
+      render json: {message: "marked as unread"}
+    else
+      render json: {message: "unread already"}, status: :not_modified
+    end
   end
 
   private
 
-  def notification_params
-    params.require(:notification).permit(:consultation_id, :status, :received_at)
+  def set_notification
+    @notification = current_user.notifications.find(params[:id])
   end
-  
 end

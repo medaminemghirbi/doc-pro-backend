@@ -64,7 +64,7 @@ class Api::V1::DocumentsController < ApplicationController
   private
 
   def document_params
-    params.require(:document).permit(:title, :file, :doctor_id)
+    params.require(:document).permit(:title, :file, :remind_date, :doctor_id)
   end
 
   # Method to format document data including file_type and document_url
@@ -74,7 +74,8 @@ class Api::V1::DocumentsController < ApplicationController
       title: doc.title,
       file_type: doc.file.attached? ? doc.file.content_type : nil,  # Include file type
       size: doc.file.attached? ? (doc.file.blob.byte_size.to_f / 1_024).round(2) : 0,  # Convert size to KB
-
+      order: doc.order,
+      remind_date: doc.remind_date,
       document_url: doc.file.attached? ? url_for(doc.file) : nil    # Include document URL
     }
   end

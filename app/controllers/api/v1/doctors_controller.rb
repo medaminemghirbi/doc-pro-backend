@@ -81,7 +81,7 @@ class Api::V1::DoctorsController < ApplicationController
   def activate_compte
     @user = User.find(params[:id])
 
-    if @user.update(confirmed_at: Time.now, confirmation_token: nil, is_verified: true)
+    if @user.update(confirmed_at: Time.now, confirmation_token: nil)
       render json: {message: "Account successfully activated."}, status: :ok
     else
       render json: {errors: @user.errors.full_messages}, status: :unprocessable_entity

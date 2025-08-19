@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_07_11_131228) do
+ActiveRecord::Schema[7.0].define(version: 2025_08_15_002641) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -43,25 +43,6 @@ ActiveRecord::Schema[7.0].define(version: 2025_07_11_131228) do
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
-  create_table "app_configs", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.string "key"
-    t.string "value"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
-
-  create_table "blogs", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.string "title"
-    t.text "content"
-    t.uuid "doctor_id", null: false
-    t.uuid "maladie_id", null: false
-    t.boolean "is_archived", default: false
-    t.boolean "is_verified", default: false
-    t.serial "order"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
-
   create_table "consultation_reports", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "consultation_id", null: false
     t.text "diagnosis"
@@ -91,112 +72,47 @@ ActiveRecord::Schema[7.0].define(version: 2025_07_11_131228) do
     t.index "date(appointment), doctor_id, patient_id", name: "index_consultations_on_date_and_doctor_and_patient", unique: true
   end
 
-  create_table "custom_mails", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.string "doctor_id"
-    t.string "patient_id"
-    t.string "subject"
-    t.text "body"
-    t.string "status", default: "sent"
-    t.datetime "sent_at"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
-
-  create_table "doctor_services", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "doctor_id", null: false
-    t.uuid "service_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["doctor_id", "service_id"], name: "index_doctor_services_on_doctor_and_service", unique: true
-  end
-
   create_table "documents", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "title"
     t.uuid "doctor_id", null: false
     t.boolean "is_archived", default: false
     t.integer "order", default: 1
+    t.date "remind_date"
+    t.datetime "notified_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
 
-  create_table "holidays", force: :cascade do |t|
-    t.string "holiday_name", null: false
-    t.date "holiday_date", null: false
-    t.boolean "is_archived", default: false
+  create_table "noticed_events", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "type"
+    t.string "record_type"
+    t.uuid "record_id"
+    t.jsonb "params"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "notifications_count"
+    t.index ["record_type", "record_id"], name: "index_noticed_events_on_record"
   end
 
-  create_table "maladies", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.string "maladie_name", null: false
-    t.text "maladie_description"
-    t.text "synonyms"
-    t.text "symptoms"
-    t.text "causes"
-    t.text "treatments"
-    t.text "prevention"
-    t.text "diagnosis"
-    t.text "references"
-    t.serial "order"
-    t.boolean "is_archived", default: false
-    t.boolean "is_cancer", default: false
+  create_table "noticed_notifications", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "type"
+    t.uuid "event_id", null: false
+    t.string "recipient_type", null: false
+    t.uuid "recipient_id", null: false
+    t.datetime "read_at", precision: nil
+    t.datetime "seen_at", precision: nil
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-  end
-
-  create_table "messages", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.text "body"
-    t.boolean "is_archived", default: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.uuid "sender_id"
+    t.index ["event_id"], name: "index_noticed_notifications_on_event_id"
+    t.index ["recipient_type", "recipient_id"], name: "index_noticed_notifications_on_recipient"
   end
 
   create_table "payments", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "consultation_id", null: false
+    t.uuid "doctor_id", null: false
     t.string "payment_id"
     t.integer "status", default: 0
     t.integer "amount"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
-
-  create_table "phone_numbers", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "doctor_id", null: false
-    t.string "number", null: false
-    t.string "phone_type", null: false
-    t.boolean "is_archived", default: false
-    t.integer "order", default: 1
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
-
-  create_table "predictions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "doctor_id"
-    t.uuid "patient_id"
-    t.string "predicted_class"
-    t.string "probability"
-    t.integer "download_count", default: 0
-    t.uuid "maladie_id", null: false
-    t.uuid "consultation_id"
-    t.datetime "sent_at"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
-
-  create_table "ratings", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "consultation_id", null: false
-    t.integer "rating_value"
-    t.string "comment"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
-
-  create_table "services", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.string "name", null: false
-    t.text "description"
-    t.string "price"
-    t.integer "order", default: 1
+    t.datetime "paid_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -211,6 +127,8 @@ ActiveRecord::Schema[7.0].define(version: 2025_07_11_131228) do
     t.datetime "confirmed_at"
     t.datetime "confirmation_sent_at"
     t.string "unconfirmed_email"
+    t.string "confirmation_code"
+    t.datetime "confirmation_code_generated_at"
     t.string "firstname"
     t.string "lastname"
     t.string "address"
@@ -218,42 +136,27 @@ ActiveRecord::Schema[7.0].define(version: 2025_07_11_131228) do
     t.integer "gender", default: 0
     t.integer "civil_status", default: 0
     t.boolean "is_archived", default: false
+    t.boolean "is_verified", default: false
+    t.integer "plateform"
     t.integer "order", default: 1
     t.string "type"
     t.string "location"
-    t.string "specialization"
-    t.float "latitude"
-    t.float "longitude"
-    t.string "description"
-    t.string "code_doc"
-    t.string "website"
-    t.string "twitter"
-    t.string "youtube"
-    t.string "facebook"
-    t.string "linkedin"
+    t.string "code_user"
     t.string "phone_number"
     t.string "medical_history"
     t.integer "plan", default: 0
-    t.integer "custom_limit", default: 0
-    t.integer "radius", default: 5
     t.boolean "is_emailable", default: false
     t.boolean "is_notifiable", default: false
     t.boolean "is_smsable", default: false
-    t.boolean "working_saturday", default: false
-    t.boolean "working_on_line", default: false
-    t.integer "amount"
-    t.integer "plateform"
+    t.boolean "working_weekends", default: false
+    t.uuid "doctor_id"
+    t.string "language", default: "fr"
+    t.string "jti", default: ""
+    t.boolean "has_access_account", default: true, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "language", default: "fr"
-    t.string "confirmation_code"
-    t.datetime "confirmation_code_generated_at"
-    t.string "about_me"
-    t.string "jti", default: "", null: false
-    t.string "expo_push_token"
-    t.boolean "is_verified", default: false
+    t.datetime "account_access_granted_at", default: -> { "CURRENT_TIMESTAMP" }
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
-    t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
@@ -262,5 +165,4 @@ ActiveRecord::Schema[7.0].define(version: 2025_07_11_131228) do
   add_foreign_key "consultations", "users", column: "doctor_id"
   add_foreign_key "consultations", "users", column: "patient_id"
   add_foreign_key "documents", "users", column: "doctor_id"
-  add_foreign_key "phone_numbers", "users", column: "doctor_id"
 end

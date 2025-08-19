@@ -3,14 +3,10 @@
   - default
 :scheduler:
   :schedule:
-    GenerateRoomCodeJob:
-      description: 'Generate room code for consultations'
+    DocumentReminderNotifier:
+      description: 'Send Notification on remind documents'
       queue: default
-      cron: '*/1 * * * *'  # Runs every minute
-    UpdateConsultationStatusJob:
-      description: 'Update Consultation Status to finished after 2 hours of appointment date'
-      queue: default
-      cron: '*/1 * * * *'  # Runs every minute
+      cron: '0 * * * *'  # Runs every hour
     VerifyPaymentJob:
       description: 'Update Payment Status'
       queue: default

@@ -5,16 +5,12 @@ class Api::V1::UsersController < ApplicationController
   def count_all_for_admin
     @apointements = Consultation.current.all.count
     @patients = Patient.current.all.count
-    @blogs = Blog.current.all.count
     @doctors = Doctor.current.all.count
-    @maladies = Maladie.current.all.count
 
     render json: {
       apointements: @apointements,
       patients: @patients,
-      blogs: @blogs,
-      doctors: @doctors,
-      maladies: @maladies
+      doctors: @doctors
     }
   end
 

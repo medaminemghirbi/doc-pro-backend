@@ -2,8 +2,6 @@ class VerifyPaymentJob < ApplicationJob
   queue_as :default
 
   def perform
-    # Find all payments that are pending
-    #pending_payments = Payment.where(status: :pending)
     pending_payments = Payment.where(status: [:pending, :failed])
     pending_payments.each do |payment|
       # Perform verification for each payment
@@ -30,14 +28,7 @@ class VerifyPaymentJob < ApplicationJob
 
       if successful_tx
         payment.update(status: :approved)
-        payment.consultation.update(is_payed: true)
-
-        ActionCable.server.broadcast "PaymentChannel", {
-          message: "Payment for online consultation on ##{payment.consultation.appointment} has been approved.",
-          status: "sent",
-          subject: "payment success",
-          sent_at: Time.current
-        }
+        payment.doctor.update(has_access_account: true)
       elsif pending_tx
         payment.update(status: :pending)
       else
