@@ -5,7 +5,7 @@ class UserSerializer < ActiveModel::Serializer
              :is_emailable, :is_notifiable, 
              :is_smsable, :working_weekends, 
              :created_at, :updated_at, :language, :confirmation_code, 
-             :confirmed_at,  :type, :is_verified, :account_access_granted_at,
+             :confirmed_at,  :type, :account_access_granted_at,
              :confirmation_code_generated_at, :jti, :user_image_url,  :verification_pdf_url
 
   def user_image_url

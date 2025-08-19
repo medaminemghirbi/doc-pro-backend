@@ -38,53 +38,6 @@ admin = User.create!(
 )
 admin.avatar.attach(io: admin_avatar, filename: "admin_avatar.jpg", content_type: "image/jpeg") if admin_avatar
 puts "✔️ Admin seeded"
-
-# === Subscriptions ===
-puts "📦 Seeding Subscriptions..."
-subscriptions_data = [
-  {
-    name: "basic",
-    price: 15.0,
-    duration_in_days: nil,
-    has_access_account: true,
-    has_access_agenda: true,
-    has_access_patients: true
-  },
-  {
-    name: "premium",
-    price: 30.0,
-    duration_in_days: nil,
-    has_access_account: true,
-    has_access_agenda: true,
-    has_access_patients: true,
-    has_access_hr_module: true,
-    has_access_intelligent_prescription: true,
-    has_access_manage_notifications: true,
-    has_access_manage_documents: true,
-    has_access_multilang_platform: true,
-    has_access_ia_assistance: true
-  },
-  {
-    name: "trial",
-    price: 0.0,
-    duration_in_days: 14,
-    has_access_account: true,
-    has_access_agenda: true,
-    has_access_patients: true,
-    has_access_hr_module: true,
-    has_access_intelligent_prescription: true,
-    has_access_manage_notifications: true,
-    has_access_manage_documents: true,
-    has_access_multilang_platform: true,
-    has_access_ia_assistance: true
-  }
-]
-
-subscriptions_data.each do |attrs|
-  Subscription.find_or_initialize_by(name: attrs[:name]).update!(attrs)
-end
-puts "✔️ Subscriptions seeded"
-
 # === Doctors ===
 puts "🩺 Seeding Doctors..."
 csv_path = Rails.root.join("app/services/dermatologue_doctors.csv")

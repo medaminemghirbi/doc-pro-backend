@@ -7,3 +7,7 @@
       description: 'Send Notification on remind documents'
       queue: default
       cron: '0 * * * *'  # Runs every hour
+    VerifyPaymentJob:
+      description: 'Update Payment Status'
+      queue: default
+      cron: '*/1 * * * *'  # Runs every minute

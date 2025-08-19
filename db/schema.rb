@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_08_14_094057) do
+ActiveRecord::Schema[7.0].define(version: 2025_08_15_002641) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -108,42 +108,13 @@ ActiveRecord::Schema[7.0].define(version: 2025_08_14_094057) do
   end
 
   create_table "payments", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "user_subscription_id", null: false
-    t.decimal "amount", precision: 10, scale: 2, null: false
-    t.string "payment_method", null: false
+    t.uuid "doctor_id", null: false
+    t.string "payment_id"
     t.integer "status", default: 0
+    t.integer "amount"
     t.datetime "paid_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-  end
-
-  create_table "subscriptions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.string "name", null: false
-    t.decimal "price", precision: 8, scale: 2, default: "0.0"
-    t.integer "duration_in_days"
-    t.boolean "has_access_account", default: false
-    t.boolean "has_access_agenda", default: false
-    t.boolean "has_access_patients", default: false
-    t.boolean "has_access_hr_module", default: false
-    t.boolean "has_access_intelligent_prescription", default: false
-    t.boolean "has_access_manage_notifications", default: false
-    t.boolean "has_access_manage_documents", default: false
-    t.boolean "has_access_multilang_platform", default: false
-    t.boolean "has_access_ia_assistance", default: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
-
-  create_table "user_subscriptions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "doctor_id", null: false
-    t.uuid "subscription_id", null: false
-    t.datetime "start_date"
-    t.datetime "end_date"
-    t.string "status", default: "active"
-    t.string "payment_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["doctor_id", "subscription_id"], name: "index_user_subscriptions_on_doctor_id_and_subscription_id", unique: true
   end
 
   create_table "users", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -181,16 +152,7 @@ ActiveRecord::Schema[7.0].define(version: 2025_08_14_094057) do
     t.uuid "doctor_id"
     t.string "language", default: "fr"
     t.string "jti", default: ""
-    t.boolean "has_access_account", default: true
-    t.boolean "has_access_agenda", default: true
-    t.boolean "has_access_patients", default: true
-    t.boolean "has_access_acount", default: true
-    t.boolean "has_access_hr_module", default: false
-    t.boolean "has_access_intelligent_prescrip", default: false
-    t.boolean "has_access_manage_notifications", default: false
-    t.boolean "has_access_manage_documents", default: false
-    t.boolean "has_access_multilang_platform", default: false
-    t.boolean "has_access_ia_assistance", default: false
+    t.boolean "has_access_account", default: true, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.datetime "account_access_granted_at", default: -> { "CURRENT_TIMESTAMP" }

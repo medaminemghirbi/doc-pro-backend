@@ -23,4 +23,10 @@ class UserMailer < ApplicationMailer
     @confirmation_code = user.confirmation_code
     mail(to: @user.email, subject: "Email Confirmation Code")
   end
+
+  def send_payment_link(user, payment_link)
+    @user = user
+    @payment_link = payment_link
+    mail(to: @user.email, subject: "Account Opening and Payment Link")
+  end
 end

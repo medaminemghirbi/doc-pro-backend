@@ -27,7 +27,6 @@ class CreateUsers < ActiveRecord::Migration[7.0]
       t.integer :gender, default: 0
       t.integer :civil_status, default: 0
       t.boolean :is_archived, default: false
-      t.boolean :is_verified, default: false
       t.integer :plateform
       t.integer :order, default: 1
       t.string :type # STI
@@ -50,6 +49,8 @@ class CreateUsers < ActiveRecord::Migration[7.0]
       t.uuid :doctor_id
       t.string :language, default: "fr"
       t.string :jti, default: ""
+      t.boolean :has_access_account, default: false, null: false
+      
       t.timestamps
     end
 
